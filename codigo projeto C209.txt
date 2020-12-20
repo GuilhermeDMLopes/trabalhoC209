@@ -1,0 +1,26 @@
+import numpy as np
+import cv2 as cv
+
+cap = cv.VideoCapture(0) #Guardando o video selecionado em uma variável. P/ Parametro = 0, usa-se a webcam
+#kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3,3)) #definimos uma estrutura de imagem para utulizarmos cv.morphology
+#fgbg = cv.createBackgroundSubtractorMOG2() #Algoritmo de segmentação do fundo da imagem com sua frente. Faz uma mistura gaussiana para diferenciar os pixels estáticos e dinâmicos da imagem
+#fgbg = cv.createBackgroundSubtractorMOG2(detectShadows=True) #Através deste parametro podemos identificar os objetos em movimento através de sombras
+fgbg = cv.createBackgroundSubtractorKNN(detectShadows=True) #Adaptação eficiente para capturar a densidade de pixel por pixel da imagem para remoção de fundo
+#TODAS AS FUNÇÕES DIFEREM OS OBJETOS ESTÁTICOS DOS DINAMICOS. DEIXANDO OS ESTÁTICOS EM PRETO E OS DINAMICOS EM BRANCO
+
+while True:
+    ret, frame = cap.read() #Faz a leitura do vídeo lendo frame por frame
+    if frame is None: #Se não houver frame, não há video e nesse caso ele sai do while
+        break
+    fgmask = fgbg.apply(frame) #Criamos uma variavel aplicando um dos metodos escolhidos frame por frame do vídeo
+    #fgmask = cv.morphologyEx(fgmask, cv.MORPH_OPEN, kernel) #outro método de subtração de fundo usando o tamanho das "imagens" dinamicas
+
+    cv.imshow('Frame', frame) #mostramos o vídeo original
+    cv.imshow('FG MASK Frame', fgmask) #mostramos o video com o efeito aplicado
+
+    keyboard = cv.waitKey(3000) #utilizamos uma varíavel para capturar uma tecla do teclado
+    if keyboard == 'q' or keyboard == 27: #caso a letra q ou ESC (tabela ASCII) sejam apertados, paramos a reprodução dos videos
+        break
+
+cap.release() #para de capturar/gravar o vídeo
+cv.destroyAllWindows() #fechamos as janelas abertas no código
